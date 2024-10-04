@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Bootstrap JS and Popper.js -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.min.js"></script>
+
+    <title>Recipe Web App</title>
+
+    <style>
+       
+     /* Custom styles for carousel arrows */
+    .carousel-control-prev:hover,
+        .carousel-control-next:hover {
+            color: white; /* Keep the color white on hover */
+            background-color: transparent; /* Remove any background color on hover */
+        }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        background-color: transparent; /* Make icons transparent */
+        border: none; /* Remove border */
+    }
+
+    body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5dc;
+        color: #333;
+    }
+    h1, h2 {
+        text-align: center;
+        color: #4A90E2;
+    }
+    #recipeForm, #feedbackContainer {
+        margin: 20px auto;
+        padding: 20px;
+        border-radius: 10px;
+        background-color: #ffffff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 80%;
+        max-width: 600px;
+    }
+    .dynamic-field {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+    .dynamic-field input {
+        flex: 1;
+        margin-right: 5px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    .dynamic-field input:focus {
+        border-color: #4A90E2;
+        outline: none;
+    }
+    .remove-btn {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .remove-btn:hover {
+        background-color: #c0392b;
+    }
+    .error {
+        color: red;
+        font-size: 0.9em;
+        margin-top: 5px;
+    }
+        
+    .recipe-card {
+        background-color: #fff; /* Card background color */
+        border: 1px solid #ddd; /* Border around the card */
+        border-radius: 8px; /* Rounded corners */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        margin: 15px; /* Margin around the card */
+        transition: transform 0.3s; /* Smooth transition on hover */
+    }
+
+    .recipe-card:hover {
+        transform: translateY(-5px); /* Slightly lift the card on hover */
+    }
+
+    .recipe-card img {
+        border-top-left-radius: 8px; /* Rounded corners for the image */
+        border-top-right-radius: 8px;
+    }
+
+    .recipe-card h3 {
+        font-size: 1.5em; /* Font size for the title */
+        margin: 10px 0; /* Margin for spacing */
+        color: #333; /* Color for the title */
+    }
+
+
+    #recipeImage {
+        margin-top: 10px;
+    }
+    button {
+        background-color: #4A90E2;
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 10px;
+    }
+    button:hover {
+        background-color: #357ABD;
+    }
+    #famousDishes {
+        margin-top: 20px;
+        text-align: center;
+    }
+    .dish-description {
+        margin-top: 10px;
+    }
+    .reset-btn {
+        background-color: #e0e0e0;
+        color: #333;
+        border: 1px solid #ccc;
+    }
+    .reset-btn:hover {
+        background-color: #ccc;
+    }
+    #feedbackSummary {
+        margin-top: 20px;
+        text-align: center;
+        color: green;
+    }
+    #thankYouMessage {
+        margin-top: 10px;
+        text-align: center;
+        color: green;
+        display: none; /* Hide initially */
+    }
+
+    .view-recipe-btn {
+        padding: 5px 10px; /* Smaller padding for a smaller button */
+        font-size: 14px; /* Adjusted font size */
+        border: none; 
+        border-radius: 5px; /* Slightly rounded corners */
+        background-color: #4CAF50; /* Green background color */
+        color: white; /* White text color */
+        cursor: pointer; /* Pointer cursor on hover */
+        transition: background-color 0.3s; /* Smooth background color transition */
+    }
+
+    .view-recipe-btn:hover {
+        background-color: #45a049; /* Darker green on hover */
+    }
+
+    /* Modal container */
+    .modal-header {
+        border-bottom: none; 
+        position: relative; /* Position relative to use absolute positioning for the close button */
+    }
+
+    #recipeModal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.7); 
+        justify-content: center;
+        align-items: center;
+        display: flex;
+    }
+
+    /* Modal content */
+    .modal-content {
+        background-color: white;
+        border-radius: 10px;
+        padding: 20px;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow */
+        position: relative;
+        text-align: center;
+        animation: fadeIn 0.3s ease; /* Add fade-in effect */
+    }
+
+    /* Close button */
+    .close {
+        color: #aaa; /* Color of the close button */
+        font-size: 30px; /* Font size */
+        font-weight: bold; /* Bold font */
+        position: absolute; /* Positioning */
+        top: 10px; /* Position from the top */
+        right: 15px; /* Position from the right */
+        cursor: pointer; /* Pointer cursor on hover */
+    }
+
+    .close:hover,
+    .close:focus {
+        color: #000; /* Change color on hover */
+        text-decoration: none; /* Remove underline */
+        cursor: pointer; /* Pointer cursor */
+    }
+
+    /* Modal image */
+    #modalImage {
+        max-width: 100%;
+        max-height: 200px; /* Control image height */
+        border-radius: 10px; /* Round corners */
+        margin-bottom: 15px;
+    }
+
+    /* Modal headings */
+    .modal-content h3 {
+        font-size: 24px;
+        margin-bottom: 10px;
+        color: #333;
+    }
+    .modal-content h4 {
+        color: #666;
+    }
+
+    /* Ingredient and Steps list */
+    .modal-content ul, .modal-content ol {
+        text-align: left;
+        padding: 0;
+        list-style-position: inside;
+    }
+
+    .modal-content ul li, .modal-content ol li {
+        margin-bottom: 8px;
+        font-size: 16px;
+    }
+
+    /* Add subtle fade-in effect for modal */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    /* Buttons */
+    .modal-content button {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .modal-content button:hover {
+        background-color: #218838;
+    }
+
+    /* Container for the recipe cards */
+    #dishesList {
+        display: flex;
+        flex-wrap: wrap; /* Allows wrapping to next line when the row is full */
+        gap: 20px; /* Adds space between cards */
+        justify-content: space-around; /* Distribute cards evenly */
+        margin-top: 20px;
+    }
+
+    /* Basic styles for recipe cards */
+    .recipe-card {
+        background-color: #fff; /* Card background color */
+        border-radius: 8px; /* Rounded corners */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Shadow effect */
+        margin: 10px; /* Space between cards */
+        padding: 15px; /* Padding inside the card */
+        width: 250px; /* Set a smaller width */
+        height: auto; /* Automatic height */
+        transition: transform 0.2s; /* Smooth hover effect */
+    }
+
+    .recipe-card img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+    }
+
+    .recipe-card:hover {
+        transform: scale(1.05); /* Slightly larger hover effect */
+    }
+
+    /* Grid container */
+    #dishesList {
+        display: grid;
+        gap: 25px; /* Increase gap for larger spacing between cards */
+    }
+
+    /* For large screens, display 4 bigger cards per row */
+     @media (min-width: 1200px) {
+        #dishesList {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+
+    /* For medium screens, display 2 bigger cards per row */
+    @media (min-width: 768px) and (max-width: 1199px) {
+        #dishesList {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    /* For small screens, display 1 bigger card per row */
+    @media (max-width: 767px) {
+        #dishesList {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    #mainHeadingCarousel {
+    height: 300px; /* Adjust the height as needed */
+    }
+
+    #mainHeadingCarousel .carousel-item img {
+        height: 300px;
+        object-fit: cover; /* Ensure images fit properly */
+    }
+
+    #main-heading-text {
+        font-size: 3rem;
+        font-weight: bold;
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+    }
+
+    #famousDishes {
+        padding: 50px 20px;
+        background-color: #f9f9f9;
+        text-align: center;
+    }
+
+    #famousDishes h2 {
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+    }
+
+    .dishes-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px; /* Adds space between cards */
+    }
+
+    .dish-card {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        width: 200px; /* Set width */
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+
+    .dish-card img {
+        width: 100%;
+        height: auto; /* Maintains aspect ratio */
+    }
+
+    .dish-card h3 {
+        font-size: 1.5rem;
+        margin: 15px 0 10px;
+    }
+
+    .dish-card p {
+        padding: 0 10px;
+        color: #555;
+    }
+
+    .dish-card:hover {
+        transform: scale(1.05); /* Slightly enlarge card on hover */
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2); /* Enhance shadow on hover */
+    }
+
+    footer {
+        background-color: #333; /* Dark background for contrast */
+        color: #fff; /* White text */
+        padding: 20px 0;
+        text-align: center;
+        margin-top: 40px; /* Adds some spacing from the content above */
+    }
+
+    footer .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    footer p {
+        margin: 0;
+        font-size: 14px;
+    }
+
+    .filter-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 20px 0;
+    }
+
+    .filter-btn {
+        background-color: #587ddb;
+        border: none;
+        color: #f2f6f8;
+        width: 80px;  /* Set the width */
+        height: 80px; /* Set the height to make them square */
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.3s ease;
+        border-radius: 5px; 
+    }
+
+    .filter-btn:hover {
+        background-color: #ccc;
+    }
+
+    .filter-btn.active {
+        background-color: #333;
+        color: #fff;
+    }
+
+    /* Feedback Table Styles */
+    #feedbackTable {
+        margin-top: 20px; /* Add some space above the table */
+        width: 100%; /* Make the table take full width */
+        border-collapse: collapse; /* Remove space between cells */
+    }
+
+    #feedbackTable table {
+        width: 100%; /* Ensure the table takes full width */
+        border: 1px solid #ccc; /* Add border around the table */
+        border-radius: 8px; /* Add rounded corners */
+        overflow: hidden; /* Hide overflow for rounded corners */
+    }
+
+    #feedbackTable th, #feedbackTable td {
+        padding: 10px; /* Add padding for cells */
+        text-align: left; /* Align text to the left */
+    }
+
+    #feedbackTable th {
+        background-color: #f2f2f2; /* Light gray background for header */
+        color: #333; /* Dark text color */
+    }
+
+    #feedbackTable tr:nth-child(even) {
+        background-color: #f9f9f9; /* Light background for even rows */
+    }
+
+    #feedbackTable tr:hover {
+        background-color: #f1f1f1; /* Change background on hover */
+    }
+
+    #feedbackTable p {
+        text-align: center; /* Center text for no feedback message */
+        color: #666; /* Gray text color */
+        font-style: italic; /* Italicize text */
+    }
+
+    .feature-description {
+        background-color: #91e6e4; /* Light background color for contrast */
+        padding: 20px; /* Padding around the text */
+        border-radius: 8px; /* Rounded corners */
+        margin: 20px 0; /* Margin to separate it from other elements */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
+    }
+
+    .feature-description h2 {
+        color: #4a4a4a; /* Darker color for headings */
+    }
+
+    .feature-description p,
+    .feature-description ol {
+        color: #666; /* Darker gray for text */
+    }
+
+    .feature-description {
+        margin-bottom: 20px; /* Adds space below the description */
+    }
+
+    .recipe-form {
+        display: flex; /* Use flexbox to align items */
+        flex-direction: column; /* Align items vertically */
+        align-items: center; /* Center items horizontally */
+    }
+
+    .form-description {
+        border: 1px solid #ccc; /* Add a border for visibility */
+        border-radius: 5px; 
+        padding: 10px; /* Space around text */
+        background-color: #91e6e4; /* Light background color */
+        margin-top: 20px; /* Space between form and description box */
+        margin-left: 40px; /* Increased left margin for greater gap from the left */
+        margin-right: 40px; /* Increased right margin for greater gap from the right */
+        max-width: 400px; /* Width of the description box */
+        width: 100%; /* Make the box responsive */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional: add a subtle shadow */
+        text-align: left; /* Align text to the left for better readability */
+    }
+
+    @media (min-width: 768px) {
+        .recipe-form {
+            flex-direction: row; /* Align items horizontally on larger screens */
+            justify-content: space-between; /* Add space between form and description */
+        }
+
+    #recipeForm {
+        width: 60%; /* Set a specific width for the form */
+    }
+
+    .form-description {
+        width: 30%; /* Set a specific width for the description box */
+        min-width: 200px; /* Minimum width to maintain readability */
+        margin-top: 0; /* Remove top margin on larger screens */
+        margin-left: 40px; /* Increased left margin for greater gap from the left */
+        margin-right: 40px; /* Increased right margin for greater gap from the right */
+    }
+}
+
+    .filter-info-box {
+        background-color: #91e6e4; /* Light background color */
+        border: 1px solid #ccc; /* Light border */
+        border-radius: 5px; /* Rounded corners */
+        padding: 15px; /* Padding around the text */
+        margin-top: 10px; /* Space above the box */
+        display: block; /* Change to block to cover full width */
+        width: 100%; /* Full width */
+        box-sizing: border-box; /* Include padding in width */
+        position: relative; /* Allows absolute positioning of child elements */
+    }
+
+    .filter-info-box h3 {
+        margin-bottom: 10px; /* Space below the heading */
+    }
+
+    .filter-info-box p,
+    .filter-info-box ol {
+        font-size: 14px; /* Smaller font size */
+    }
+
+    /* Container layout */
+    .form-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    /* Description box */
+    .feature-description-box {
+        width: 40%;
+        background-color: #f8f9fa;
+        padding: 20px;
+        border: 2px solid #ccc;
+        border-radius: 5px;
+    }
+
+    /* Feedback form */
+    .feedback-form {
+        width: 55%;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .feedback-form h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    /* Input fields and textarea */
+    .feedback-form input[type="text"],
+    .feedback-form textarea {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+        background-color: #f9f9f9;
+        transition: border-color 0.3s ease;
+    }
+
+    .feedback-form input[type="text"]:focus,
+    .feedback-form textarea:focus {
+        border-color: #007bff;
+        background-color: #fff;
+    }
+
+    /* Container layout */
+    .form-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    /* Description box with margin from the left */
+    .feature-description-box {
+        width: 40%;
+        background-color: #91e6e4;
+        padding: 20px;
+        border: 2px solid #ccc;
+        border-radius: 5px;
+        margin-left: 20px; /* Space from the left margin */
+    }
+
+    /* Smaller Feedback form with margin */
+    .feedback-form {
+        width: 40%;
+        background-color: #ffffff;
+        padding: 15px; /* Less padding for compactness */
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-right: 20px; /* Space from the right margin */
+    }
+
+    .feedback-form h1 {
+        text-align: center;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    /* Smaller Input fields and textarea */
+    .feedback-form input[type="text"],
+    .feedback-form textarea {
+        width: 100%;
+        padding: 8px; /* Smaller padding */
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px; /* Smaller font */
+        background-color: #f9f9f9;
+        transition: border-color 0.3s ease;
+    }
+
+    .feedback-form input[type="text"]:focus,
+    .feedback-form textarea:focus {
+        border-color: #007bff;
+        background-color: #fff;
+    }
+
+    /* Smaller Buttons */
+    .feedback-form button {
+        width: 100%;
+        padding: 10px; /* Smaller button size */
+        border: none;
+        border-radius: 5px;
+        font-size: 14px; /* Smaller font */
+        cursor: pointer;
+        margin-bottom: 8px; /* Reduced margin */
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+
+    .btn-info {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+    .btn-info:hover {
+        background-color: #138496;
+    }
+
+    /* Error messages */
+    .error {
+        color: red;
+        font-size: 12px;
+    }
+
+    /* Thank you message */
+    #thankYouMessage {
+        color: green;
+        font-size: 16px;
+        margin-top: 10px;
+        text-align: center;
+    }
+
+    #famousDishes {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .famous-dishes-description {
+        width: 100%; /* Full width for the description box */
+        padding: 20px;
+        margin-top: 20px;
+        background-color: #91e6e4;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        box-sizing: border-box;
+    }
+
+    .famous-dishes-description h2 {
+        font-size: 22px;
+        margin-bottom: 10px;    
+    }
+
+    .famous-dishes-description p,
+    .famous-dishes-description ol {
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+
+    .feature-description-footer {
+        background-color: #91e6e4;
+        padding: 15px;
+        margin: 20px 0;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        width: 90%; /* Adjust width according to preference */
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+</style>
+
+</head>
+<body>
+
+    <div id="mainHeadingCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img src="/images/Cooking1.jpg" class="d-block w-100" alt="Cooking 1">
+            </div>
+            <div class="carousel-item">
+                <img src="/images/Cooking2.jpg" class="d-block w-100" alt="Cooking 2">
+            </div>
+            <div class="carousel-item">
+                <img src="/images/Cooking3.jpg" class="d-block w-100" alt="Cooking 3">
+            </div>
+        </div>
+
+        <!-- Carousel controls -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#mainHeadingCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#mainHeadingCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+
+        <!-- Main Heading Text Overlay -->
+        <div class="carousel-caption d-flex flex-column justify-content-center align-items-center">
+            <h1 class="display-4 text-white" id="main-heading-text">Fiona's Kitchen</h1>
+        </div>
+    </div>
+
+    <div class="feature-description">
+        <h2>Dynamic Background Image Carousel</h2>
+        <p>The background image carousel enhances the visual appeal of the webpage by showcasing various cooking-related images. This feature provides an engaging experience for users, inviting them into the world of recipes.</p>
+        <h3>How It Works</h3>
+        <ol>
+            <li><strong>HTML Structure:</strong> The carousel is created using Bootstrap’s carousel component, featuring a series of images that transition smoothly.</li>
+            <li><strong>CSS Styling:</strong> The carousel is styled to fit the header area, ensuring images cover the space and maintain their aspect ratio.</li>
+            <li><strong>JavaScript Functionality:</strong> Bootstrap’s JavaScript handles transitions and auto-sliding, requiring no additional scripting.</li>
+            <li><strong>Accessibility:</strong> All images include descriptive alt attributes for better accessibility.</li>
+        </ol>
+        <p>This carousel feature not only enhances aesthetics but also improves user engagement, making it an essential part of the recipe webpage.</p>
+    </div>
+  
+    
+        <h1>Recipe Submission</h1>
+        <div class="recipe-form">
+        <div id="recipeForm">
+        <input type="text" id="dishName" placeholder="Enter dish name" required>
+        <div id="dishNameError" class="error"></div>
+    
+        <select id="categorySelect" required>
+            <option value="" disabled selected>Select category</option>
+            <option value="Vegetarian">Vegetarian</option>
+            <option value="Vegan">Vegan</option>
+            <option value="Dessert">Dessert</option>
+            <option value="Appetizer">Appetizer</option>
+        </select>
+        <div id="categoryError" class="error"></div>
+    
+        <div id="ingredientsContainer">
+            <h3>Ingredients</h3>
+            <div class="dynamic-field">
+                <input type="text" placeholder="Enter an ingredient" required>
+                <button class="remove-btn" onclick="removeField(this)">Remove</button>
+            </div>
+            <div class="dynamic-field">
+                <input type="text" placeholder="Enter an ingredient" required>
+                <button class="remove-btn" onclick="removeField(this)">Remove</button>
+            </div>
+        </div>
+        <button id="addIngredientBtn">Add Ingredient</button>
+        <div id="ingredientsError" class="error"></div>
+    
+        <div id="stepsContainer">
+            <h3>Steps</h3>
+            <div class="dynamic-field">
+                <input type="text" placeholder="Enter a step" required>
+                <button class="remove-btn" onclick="removeField(this)">Remove</button>
+            </div>
+            <div class="dynamic-field">
+                <input type="text" placeholder="Enter a step" required>
+                <button class="remove-btn" onclick="removeField(this)">Remove</button>
+            </div>
+        </div>
+        <button id="addStepBtn">Add Step</button>
+        <div id="stepsError" class="error"></div>
+    
+        <input type="file" id="recipeImage" accept="image/*" required>
+        <div id="imageError" class="error"></div>
+    
+        <button id="submitRecipeBtn">Submit Recipe</button>
+        <button type="button" class="reset-btn" onclick="resetRecipeForm()">Reset</button>
+        <div id="summary"></div>
+    </div>
+
+    <div class="form-description">
+        <h2>Recipe Submission Form Features</h2>
+        <p>This form allows users to submit their favorite recipes easily. Users can input the dish name, select a category, and add ingredients and steps to prepare the dish.</p>
+        <h3>How It Works</h3>
+        <ol>
+            <li><strong>Dynamic Fields:</strong> Users can add or remove ingredients and steps dynamically, making the form flexible to accommodate any recipe.</li>
+            <li><strong>Image Upload:</strong> Users can upload an image of the dish, enhancing the visual appeal of the submitted recipes.</li>
+            <li><strong>Form Validation:</strong> Input fields are validated to ensure all necessary information is provided before submission.</li>
+        </ol>
+        <p>This feature encourages user engagement and allows for a diverse collection of recipes.</p>
+    </div>
+    </div>
+
+    <div class="filter-buttons">
+        <button class="filter-btn" data-category="All">All</button>
+        <button class="filter-btn" data-category="Vegetarian">Vegetarian</button>
+        <button class="filter-btn" data-category="Vegan">Vegan</button>
+        <button class="filter-btn" data-category="Dessert">Dessert</button>
+        <button class="filter-btn" data-category="Appetizer">Appetizer</button>
+      </div>
+    
+ <!-- Info box for filter buttons -->
+ <div class="filter-info-box">
+    <h3>Filter Buttons Feature</h3>
+    <p>The filter buttons allow users to easily navigate through various recipe categories, enhancing the browsing experience. Each button dynamically filters the displayed recipes based on the selected category.</p>
+    <h4>How It Works</h4>
+    <ol>
+        <li><strong>HTML Structure:</strong> Each button is created with a data attribute that specifies the category.</li>
+        <li><strong>JavaScript Functionality:</strong> An event listener detects button clicks and filters the displayed recipes accordingly.</li>
+        <li><strong>Responsive Design:</strong> The buttons adapt to different screen sizes, maintaining usability.</li>
+    </ol>
+</div>
+</div>
+
+
+    <div id="dishesContainer">
+        <h3>Recipes</h3>
+        <div id="dishesList"></div>
+    </div>
+</div>
+
+<div class="feature-description">
+    <h2>Dynamic Recipe Cards</h2>
+    <p>The recipe cards present each dish in a visually appealing way, featuring an image, name, category, and an option to view details.</p>
+    <h3>How It Works</h3>
+    <ol>
+        <li><strong>HTML Structure:</strong> Each recipe is enclosed within a card layout, allowing for a consistent and attractive presentation.</li>
+        <li><strong>CSS Styling:</strong> The cards are styled with shadows and rounded corners to enhance their appearance, making them stand out.</li>
+        <li><strong>Dynamic Layout:</strong> The layout adjusts dynamically according to the screen size, displaying an appropriate number of cards per row—four on large screens, two on smaller screens, and one on very small screens.</li>
+        <li><strong>JavaScript Functionality:</strong> Clicking on a card opens a modal with detailed information about the recipe, using event listeners for interactivity.</li>
+        <li><strong>Accessibility:</strong> Each card includes alt text for images and properly structured headings for screen readers.</li>
+    </ol>
+    <p>This feature not only organizes the recipes neatly but also encourages user interaction, making it a vital part of the recipe webpage.</p>
+</div>
+
+    
+    <!-- Modal Structure -->
+    <div id="recipeModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()" style="cursor: pointer;">&times;</span>
+            <h2 id="modalDishName"></h2>
+            <p><strong>Category:</strong> <span id="modalCategory"></span></p>
+            <h3>Ingredients:</h3>
+            <ul id="modalIngredients"></ul>
+            <h3>Steps:</h3>
+            <ol id="modalSteps"></ol>
+            <img id="modalImage" src="" alt="Recipe Image" style="width: 100%; height: auto;">
+        </div>
+    </div>
+
+
+    <div class="form-container">
+        <!-- Text box with description on the left -->
+        <div class="feature-description-box">
+            <h2>Feedback Form Features</h2>
+            <p>This form allows users to submit feedback, which is stored in an SQLite database for persistent storage, even if the server is restarted.</p>
+            <h3>How It Works</h3>
+            <ol>
+                <li><strong>Database Integration:</strong> Feedback is saved to a database, ensuring it's preserved across sessions.</li>
+                <li><strong>Form Handling:</strong> JavaScript is used to validate and submit the form, providing feedback on success or failure.</li>
+                <li><strong>Retrieval Feature:</strong> A 'Retrieve Feedback Details' button fetches and displays stored feedback in a table format.</li>
+            </ol>
+            <p>This feature enhances user interaction by allowing feedback to be retained, viewed, and managed effectively.</p>
+        </div>
+
+        <div class="feedback-form">
+        <h2>Feedback Form</h2>
+        <div id="feedback-form">
+        <input type="text" id="feedbackName" placeholder="Your Name" required>
+        <div id="feedbackNameError" class="error"></div>
+    
+        <textarea id="feedbackMessage" placeholder="Your Feedback" required></textarea>
+        <div id="feedbackMessageError" class="error"></div>
+    
+        <button id="submitFeedbackBtn">Submit Feedback</button>
+        <button type="button" class="reset-btn" onclick="resetFeedbackForm()">Reset</button>
+        <button id="retrieveFeedbackBtn">Retrieve Feedback Details</button>
+
+        <div id="feedbackSummary"></div>
+        <div id="thankYouMessage" style="display:none;"></div> 
+        <div id="feedbackTable"></div>
+    </div>
+</div> 
+</div>
+  
+    <section id="famousDishes">
+        <h2>Famous Dishes</h2>
+        <div class="dishes-container">
+            <div class="dish-card">
+                <img src="images/Pasta_Primavera.jpg" alt="Delicious Pasta">
+                <h3>Pasta Primavera</h3>
+                <p>A classic Italian dish loaded with fresh vegetables and served with a light sauce.</p>
+            </div>
+            <div class="dish-card">
+                <img src="images/Sushi_Platter.jpg" alt="Sushi Platter">
+                <h3>Sushi Platter</h3>
+                <p>Fresh sushi rolls made with the finest ingredients, perfect for sharing!</p>
+            </div>
+            <div class="dish-card">
+                <img src="images/Spicy_Tacos.jpg" alt="Tacos">
+                <h3>Spicy Tacos</h3>
+                <p>Soft tortillas filled with seasoned meat and topped with fresh salsa and guacamole.</p>
+            </div>
+            <div class="dish-card">
+                <img src="images/Chicken_Curry.jpg" alt="Curry">
+                <h3>Chicken Curry</h3>
+                <p>A flavorful chicken curry simmered in a blend of spices and coconut milk.</p>
+            </div>
+        </div>
+    </section>
+
+     <!-- Description Box for Famous Dishes -->
+     <div class="famous-dishes-description">
+        <h2>Famous Dishes Feature</h2>
+        <p>This section showcases a curated selection of well-known recipes, allowing users to explore top-rated dishes with ease. Each card features an image, a brief description, and a recipe name.</p>
+        <h3>How It Works</h3>
+        <ol>
+            <li><strong>Dynamic Presentation:</strong> The cards display popular dishes and allow users to view details or proceed to the recipe.</li>
+            <li><strong>Responsive Design:</strong> The layout is fully responsive:
+                <ul>
+                    <li>4 cards per row on large screens</li>
+                    <li>3 cards per row on smaller screens</li>
+                    <li>2 cards per row on very small screens</li>
+                </ul>
+            </li>
+            <li><strong>Visual Appeal:</strong> The combination of images and text creates an attractive, engaging display that enhances user experience.</li>
+        </ol>
+        <p>This feature enhances the website's functionality and visual impact, improving the overall user experience.</p>
+    </div>
+</div>
+    
+ <!-- Footer Description Box -->
+ <div class="feature-description-footer">
+    <h2>Footer Implementation</h2>
+    <p>The footer section provides essential links and copyright information, serving as a navigation aid for users and keeping the legal information readily accessible.</p>
+    <h3>How It Works</h3>
+    <ol>
+        <li><strong>HTML Structure:</strong> The footer is structured with relevant links for privacy policy, terms of service, and contact information, helping users navigate to important sections.</li>
+        <li><strong>CSS Styling:</strong> The footer is styled to stick to the bottom of the page, with enough spacing to make it readable without distracting from the main content.</li>
+        <li><strong>Responsive Design:</strong> The footer adapts to various screen sizes, ensuring a consistent layout whether on mobile or desktop.</li>
+    </ol>
+    <p>This footer enhances the overall user experience by providing quick access to key information while maintaining a clean and professional look.</p>
+</div> 
+
+    <footer style="background-color: #333; color: #fff; padding: 20px; text-align: center;">
+        <p>Follow us on:</p>
+        <ul style="list-style: none; padding: 0; display: flex; justify-content: center; gap: 20px;">
+            <li><a href="https://instagram.com" target="_blank" style="color: #fff; text-decoration: none;">Instagram</a></li>
+            <li><a href="https://facebook.com" target="_blank" style="color: #fff; text-decoration: none;">Facebook</a></li>
+            <li><a href="https://pinterest.com" target="_blank" style="color: #fff; text-decoration: none;">Pinterest</a></li>
+        </ul>
+        <p style="margin-top: 10px;">© 2024 Fiona's Kitchen. All Rights Reserved.</p>
+    </footer>
+    
+
+    
+
+    <script>
+        
+    console.log('JavaScript loaded'); 
+    let recipes = JSON.parse(localStorage.getItem('recipes')) || [];
+        
+    // Function to display recipes from localStorage
+    function displayRecipes() {
+        const recipeGrid = document.getElementById('dishesList');
+        const storedRecipes = JSON.parse(localStorage.getItem('recipes')) || [];
+         
+
+        storedRecipes.forEach(recipe => {
+            const recipeCard = document.createElement('div');
+            recipeCard.className = 'recipe-card';
+            recipeCard.innerHTML = `
+                <img src="${recipe.image}" alt="${recipe.name}">
+                <h3>${recipe.name}</h3>
+                <button class="view-recipe-btn" onclick="viewRecipe('${recipe.name}')">View Recipe</button>
+            `;
+            recipeGrid.appendChild(recipeCard);
+        });
+    }
+
+    // Function to view recipe in the modal
+    function viewRecipe(name) {
+        const storedRecipes = JSON.parse(localStorage.getItem('recipes')) || [];
+        const recipe = storedRecipes.find(r => r.name === name);
+        document.getElementById('modalDishName').innerText = recipe.name;
+        document.getElementById('modalCategory').innerText = recipe.category;
+        document.getElementById('modalIngredients').innerHTML = recipe.ingredients.map(ingredient => `<li>${ingredient}</li>`).join('');
+        document.getElementById('modalSteps').innerHTML = recipe.steps.map(step => `<li>${step}</li>`).join('');
+        document.getElementById('modalImage').src = recipe.image;
+        document.getElementById('recipeModal').style.display = 'flex';
+    }
+
+    // Close modal function
+    function closeModal() {
+        document.getElementById('recipeModal').style.display = 'none';
+    }
+
+    // Function to remove a dynamic field (ingredient or step)
+    function removeField(button) {
+        button.parentElement.remove();
+    }
+
+    // Function to add a new ingredient field
+    document.getElementById('addIngredientBtn').onclick = function() {
+        const newIngredient = document.createElement('div');
+        newIngredient.className = 'dynamic-field';
+        newIngredient.innerHTML = `
+            <input type="text" placeholder="Enter an ingredient" required>
+            <button class="remove-btn" onclick="removeField(this)">Remove</button>
+        `;
+        document.getElementById('ingredientsContainer').appendChild(newIngredient);
+    };
+
+    // Function to add a new step field
+    document.getElementById('addStepBtn').onclick = function() {
+        const newStep = document.createElement('div');
+        newStep.className = 'dynamic-field';
+        newStep.innerHTML = `
+            <input type="text" placeholder="Enter a step" required>
+            <button class="remove-btn" onclick="removeField(this)">Remove</button>
+        `;
+        document.getElementById('stepsContainer').appendChild(newStep);
+    };
+
+    // Function to submit a new recipe
+    document.getElementById('submitRecipeBtn').onclick = function(event) {
+        console.log('Submit button clicked'); // Add this for debugging
+        event.preventDefault();
+
+        const dishName = document.getElementById('dishName').value;
+        const category = document.getElementById('categorySelect').value;
+        const ingredients = Array.from(document.querySelectorAll('#ingredientsContainer input')).map(input => input.value).filter(Boolean);
+        const steps = Array.from(document.querySelectorAll('#stepsContainer input')).map(input => input.value).filter(Boolean);
+        const image = document.getElementById('recipeImage').files[0];
+
+        // Clear previous error messages
+        document.getElementById('dishNameError').innerText = '';
+        document.getElementById('categoryError').innerText = '';
+        document.getElementById('ingredientsError').innerText = '';
+        document.getElementById('stepsError').innerText = '';
+        document.getElementById('imageError').innerText = '';
+
+        // Simple validation
+        let hasError = false;
+        if (!dishName) {
+            document.getElementById('dishNameError').innerText = 'Dish name is required.';
+            hasError = true;
+        }
+        if (!category) {
+            document.getElementById('categoryError').innerText = 'Category is required.';
+            hasError = true;
+        }
+        if (ingredients.length === 0) {
+            document.getElementById('ingredientsError').innerText = 'At least one ingredient is required.';
+            hasError = true;
+        }
+        if (steps.length === 0) {
+            document.getElementById('stepsError').innerText = 'At least one step is required.';
+            hasError = true;
+        }
+        if (!image) {
+            document.getElementById('imageError').innerText = 'Recipe image is required.';
+            hasError = true;
+        }
+
+        if (hasError) {
+            return; // Stop submission if there are errors
+        }
+
+
+        // Proceed with reading the image as base64 and adding the recipe
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const recipeData = {
+                name: dishName,
+                category: category,
+                ingredients: ingredients,
+                steps: steps,
+                image: event.target.result // Base64 image data
+            };
+
+         // Fetch existing recipes from localStorage
+         let storedRecipes = JSON.parse(localStorage.getItem('recipes')) || [];
+
+         // Add new recipe to the list
+         storedRecipes.push(recipeData);
+
+         // Save updated list back to localStorage
+         localStorage.setItem('recipes', JSON.stringify(storedRecipes));
+
+        // Display the newly added recipe and refresh the display
+        displayRecipes();
+
+        // Reset the form
+        resetRecipeForm();
+            };
+            reader.readAsDataURL(image);
+       
+        };
+
+         
+    // Reset the recipe form after submission
+    function resetRecipeForm() {
+        document.getElementById('dishName').value = '';
+        document.getElementById('categorySelect').selectedIndex = 0;
+        document.querySelectorAll('#ingredientsContainer input').forEach(input => input.value = '');
+        document.querySelectorAll('#stepsContainer input').forEach(input => input.value = '');
+        document.getElementById('recipeImage').value = '';
+        document.querySelectorAll('.dynamic-field').forEach(field => field.remove());
+        displayRecipes(); // Refresh recipe display
+    }
+
+    // Load stored recipes on page load
+    window.onload = function() {
+        displayRecipes();
+    };
+
+        document.getElementById('submitFeedbackBtn').onclick = function() {
+    const feedbackName = document.getElementById('feedbackName').value;
+    const feedbackMessage = document.getElementById('feedbackMessage').value;
+
+    // Clear previous error messages
+    document.getElementById('feedbackNameError').innerText = '';
+    document.getElementById('feedbackMessageError').innerText = '';
+
+    // Simple validation
+    let hasError = false;
+    if (!feedbackName) {
+        document.getElementById('feedbackNameError').innerText = 'Your name is required.';
+        hasError = true;
+    }
+    if (!feedbackMessage) {
+        document.getElementById('feedbackMessageError').innerText = 'Feedback message is required.';
+        hasError = true;
+    }
+
+    if (hasError) {
+        return; // Stop submission if there are errors
+    }
+
+    // Update and show the thank you message
+    const thankYouMessage = document.getElementById('thankYouMessage');
+    thankYouMessage.innerHTML = `Thank you for your feedback, ${" "+feedbackName}! <br><strong>Your Feedback:</strong> ${feedbackMessage}`;
+    thankYouMessage.style.display = 'block'; // Show thank you message
+
+    
+};
+
+// Function to display recipes based on the selected category
+function displayRecipes(category = 'All') {
+    const recipeGrid = document.getElementById('dishesList');
+    const storedRecipes = JSON.parse(localStorage.getItem('recipes')) || [];
+    recipeGrid.innerHTML = ''; // Clear existing recipes
+
+    // Filter recipes based on category
+    const filteredRecipes = category === 'All' ? storedRecipes : storedRecipes.filter(recipe => recipe.category === category);
+
+    filteredRecipes.forEach(recipe => {
+        const recipeCard = document.createElement('div');
+        recipeCard.className = 'recipe-card';
+        recipeCard.innerHTML = `
+            <img src="${recipe.image}" alt="${recipe.name}">
+            <h3>${recipe.name}</h3>
+            <button class="view-recipe-btn" onclick="viewRecipe('${recipe.name}')">View Recipe</button>
+        `;
+        recipeGrid.appendChild(recipeCard);
+    });
+}
+
+// Add event listeners to filter buttons
+document.querySelectorAll('.filter-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const category = this.getAttribute('data-category');
+        displayRecipes(category);
+    });
+});
+
+// Load all recipes on page load
+window.onload = function() {
+    displayRecipes(); 
+};
+
+
+// Function to reset the feedback form
+function resetFeedbackForm() {
+    document.getElementById('feedbackName').value = '';
+    document.getElementById('feedbackMessage').value = '';
+    document.querySelectorAll('.error').forEach(error => error.innerText = '');
+    document.getElementById('feedbackSummary').innerHTML = ''; 
+    document.getElementById('thankYouMessage').innerText = ''; 
+    document.getElementById('thankYouMessage').style.display = 'none'; 
+}
+
+// Submit feedback
+document.getElementById('submitFeedbackBtn').addEventListener('click', function() {
+    const feedbackName = document.getElementById('feedbackName').value;
+    const feedbackMessage = document.getElementById('feedbackMessage').value;
+
+    if (!feedbackName || !feedbackMessage) {
+        alert('Please fill in both fields.');
+        return;
+    }
+
+    fetch('/submitFeedback', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ feedbackName, feedbackMessage }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            alert('Feedback submitted successfully!');
+            resetFeedbackForm(); // Reset the form after submission
+        } else {
+            alert('Error submitting feedback.');
+        }
+    })
+    .catch(error => {
+        console.error('Error submitting feedback:', error);
+    });
+});
+
+// Retrieve feedback
+document.getElementById('retrieveFeedbackBtn').addEventListener('click', function() {
+    fetch('/retrieveFeedback')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const feedbackTable = document.getElementById('feedbackTable');
+            feedbackTable.innerHTML = '';
+
+            if (data.length === 0) {
+                feedbackTable.innerHTML = '<p>No feedback available.</p>';
+                return;
+            }
+
+            const table = document.createElement('table');
+            table.border = '1';
+            const thead = document.createElement('thead');
+            thead.innerHTML = '<tr><th>ID</th><th>Name</th><th>Feedback</th></tr>';
+            table.appendChild(thead);
+
+            const tbody = document.createElement('tbody');
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${row.id}</td><td>${row.name}</td><td>${row.message}</td>`;
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+            feedbackTable.appendChild(table);
+        })
+        .catch(error => {
+            console.error('Error fetching feedback:', error);
+            const feedbackTable = document.getElementById('feedbackTable');
+            feedbackTable.innerHTML = '<p>Error retrieving feedback. Please try again later.</p>';
+        });
+});
+    </script>
+</body>
+</html>
+
+
